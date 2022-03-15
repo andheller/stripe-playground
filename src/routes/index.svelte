@@ -65,13 +65,10 @@
 	<title>Stripe Checkout Playground</title>
 	<meta property="og:title" content="Stripe Checkout Playground" />
 	<meta property="og:site_name" content="Svelte Board" />
-	<meta property="og:url" content="https://svelteboard.com/tutorials/stripe/checkout" />
-	<meta property="og:description" content="Stripe playground to test the Stripe Checkout API." />
-	<meta property="og:type" content="article" />
-	<meta
-		property="og:image"
-		content="https://svelteboard.com/content/stripeCheckoutPlayground.png"
-	/>
+	<meta property="og:url" content="https://stripeplayground.vercel.app/" />
+	<meta property="og:description" content="Try out Stripe Checkout with this playground." />
+	<meta property="og:type" content="website" />
+	<meta property="og:image" content="https://stripeplayground.vercel.app/stripe_playground.png" />
 	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
@@ -80,16 +77,27 @@
 	<p class="prose prose-slate prose-xl">
 		Stripe Checkout lets you integrate payment processing into your app. With Checkout, you create
 		the cart on your end and send the customer to the Stripe for Checkout. Stripe also has no code
-		options for <a href="https://stripe.com/payments/payment-links" target="_blank">Payment Links</a
+		options for <a
+			href="https://stripe.com/payments/payment-links"
+			target="_blank"
+			class="text-blue-600">Payment Links</a
 		>
-		and <a href="https://stripe.com/invoicing" target="_blank">Invoicing</a>.
+		and <a href="https://stripe.com/invoicing" target="_blank" class="text-blue-600">Invoicing</a>.
 	</p>
 
 	<div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
 		<div class="sm:col-span-3">
 			<label for="stripe-sk" class="block text-sm font-medium text-slate-700">
-				Stripe Secret Key</label
-			>
+				Stripe Secret Key (<a
+					href="https://dashboard.stripe.com/register"
+					target="_blank"
+					class="text-blue-600">Sign Up</a
+				>
+				and get our own
+				<a href="https://dashboard.stripe.com/test/developers" target="_blank" class="text-blue-600"
+					>API Keys</a
+				>)
+			</label>
 			<div class="mt-1">
 				<input
 					type="text"
