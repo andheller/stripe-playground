@@ -4,6 +4,7 @@ export async function post({ request }) {
 	const res = await request.json();
 	const { stripe_secret, quantity, price_data, price_id, priceData } = res;
 	const stripe = Stripe(stripe_secret);
+	let url = request.url.slice(0, request.url.length - 15);
 
 	if (priceData) {
 		const session = await stripe.checkout.sessions.create({
@@ -14,8 +15,8 @@ export async function post({ request }) {
 				}
 			],
 			mode: 'payment',
-			success_url: `${request.origin}?success=true`,
-			cancel_url: `${request.origin}?canceled=true`
+			success_url: `${url}?success=true`,
+			cancel_url: `${url}?canceled=true`
 		});
 
 		const sessionId = session.id;
