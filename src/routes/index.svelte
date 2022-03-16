@@ -3,10 +3,8 @@
 	import { onMount } from 'svelte';
 
 	let stripe;
-	let stripe_secret =
-		'sk_test_51KdbAWEirxNxOhIUVcKnTO7MTGLvxO4cWjU0DddPWuw1VUYIa6bgVZseAmWlMnlDZHwzLLoFPhkLvNvIJqkMHNnv00pPOqZ0Iu';
-	let stripe_perishable =
-		'pk_test_51KdbAWEirxNxOhIUPKUFRqICuP7FUWzu2T49O8z0Hwh4dMz2xV2OcUGa4favl0sXaHrBsIOf4VHGd5lqFmqtuSmB00y2AXZPjN';
+	let stripe_secret = 'sk_test_ER5GZwmsmkdadCvs4C08mnKX';
+	let stripe_perishable = 'pk_test_M7wNKM277hu0Gxbw6tnt0eWC';
 	let quantity = 1;
 	let name = 'Stripe Playground';
 	let description = 'This is a playground to check out Stripe Checkout';
@@ -14,7 +12,7 @@
 	let unit_amount = '1000';
 	let images = '';
 	let priceData = true;
-	let price_id = 'price_1Kdc0YEirxNxOhIUSSrZ91yj';
+	let price_id = '';
 	async function postStripe() {
 		const stripe = await loadStripe(stripe_perishable);
 		const headers = new Headers();

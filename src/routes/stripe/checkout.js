@@ -5,11 +5,7 @@ export async function post({ request }) {
 	const res = await request.json();
 	const { stripe_secret, quantity, price_data, price_id, priceData } = res;
 
-	console.log(res);
-	const stripe = Stripe(stripe_secret, {
-		// Cloudflare Workers use the Fetch API for their API requests.
-		httpClient: Stripe.createFetchHttpClient()
-	});
+	const stripe = Stripe(stripe_secret);
 
 	if (priceData) {
 		const session = await stripe.checkout.sessions.create({
