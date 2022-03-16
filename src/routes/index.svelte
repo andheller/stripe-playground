@@ -3,8 +3,8 @@
 	import { onMount } from 'svelte';
 
 	let stripe;
-	let stripe_secret = 'sk_test_ER5GZwmsmkdadCvs4C08mnKX';
-	let stripe_perishable = 'pk_test_M7wNKM277hu0Gxbw6tnt0eWC';
+	let stripe_secret = 'sk_test_4eC39HqLyjWDarjtT1zdp7dc';
+	let stripe_perishable = 'pk_test_TYooMQauvdEDq54NiTphI7jx';
 	let quantity = 1;
 	let name = 'Stripe Playground';
 	let description = 'This is a playground to check out Stripe Checkout';
