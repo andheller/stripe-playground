@@ -3,7 +3,6 @@ import Stripe from 'stripe';
 export async function post({ request }) {
 	const res = await request.json();
 	const { stripe_secret, quantity, price_data, price_id, priceData } = res;
-	console.log(res);
 	const stripe = Stripe(stripe_secret);
 
 	if (priceData) {
@@ -15,8 +14,8 @@ export async function post({ request }) {
 				}
 			],
 			mode: 'payment',
-			success_url: `https://stripeplayground.vercel.app?success=true`,
-			cancel_url: `https://stripeplayground.vercel.app?canceled=true`
+			success_url: `${request.origin}?success=true`,
+			cancel_url: `${request.origin}?canceled=true`
 		});
 
 		const sessionId = session.id;

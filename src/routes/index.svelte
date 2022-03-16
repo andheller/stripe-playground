@@ -282,7 +282,7 @@
 	<p class="prose-xl">
 		This demo only uses one line_item, but you can create an array of objects for a cart, but you
 		can add more line items to add more products. You can also use Stripe Checkout to create
-		subscriptions! We've got more playground and Tutorials coming!
+		subscriptions! We've got more playgrounds and tutorials coming!
 	</p>
 	<h3>More Reading</h3>
 	<ul>
