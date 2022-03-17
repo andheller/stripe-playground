@@ -5,6 +5,7 @@
 
 	let stripe;
 	let promise;
+	let error = false;
 	let showAllPaymentMethods = false;
 	let stripe_secret = 'sk_test_4eC39HqLyjWDarjtT1zdp7dc';
 	let stripe_perishable = 'pk_test_TYooMQauvdEDq54NiTphI7jx';
@@ -98,6 +99,7 @@
 				sessionId
 			});
 		} else {
+			error = true;
 			throw new Error(json.error);
 		}
 	}
@@ -125,7 +127,7 @@
 	<h1 class="text-2xl md:text-3xl tracking-tight font-extrabold text-slate-900 ml-2">
 		Stripe Checkout Playground
 	</h1>
-	<p class="prose prose-slate prose-lg md:prose-xl m-auto mb-12">
+	<p class="prose prose-slate prose-md md:prose-xl m-auto mt-2 mb-8 md:mb-12">
 		Stripe Checkout lets you integrate payment processing into your app. With Checkout, you create
 		the cart on your end and send the customer to the Stripe for Checkout. Stripe also has no code
 		options for <a
@@ -136,7 +138,7 @@
 		and <a href="https://stripe.com/invoicing" target="_blank" class="text-blue-600">Invoicing</a>.
 	</p>
 
-	<div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 md:grid-cols-2">
+	<div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 md:grid-cols-2 max-w-xl md:max-w-3xl m-auto">
 		<div>
 			<label for="stripe-sk" class="block text-sm font-medium text-slate-700">
 				Stripe Secret Key <span class="text-sm text-slate-600 font-normal"
@@ -441,41 +443,33 @@
 			</div>
 		</div>
 	</div>
-
-	<button
-		on:click={handle_submit}
-		type="submit"
-		class="mt-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-		>Check me out!
-	</button>
+	<div class="w-full h-20 py-8">
+		<button
+			on:click={handle_submit}
+			type="submit"
+			class="clear-both float-right mt-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+			><svg
+				class="animate-spin -ml-1 mr-3 h-5 w-5 text-white {promise ? '' : 'hidden'} {error
+					? 'hidden'
+					: ''}"
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+			>
+				<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+				<path
+					class="opacity-75"
+					fill="currentColor"
+					d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+				/>
+			</svg> Check me out!
+		</button>
+	</div>
 	{#if promise}
-		{#await promise}
-			<div class="max-w-3xl m-auto clear-both prose prose-xl prose-slate pt-8">
-				<svg
-					class="animate-spin h-8 w-8 p-1 text-slate-700 m-auto"
-					xmlns="http:\/\/www.w3.org\/2000\/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-				>
-					<circle
-						class="opacity-25"
-						cx="12"
-						cy="12"
-						r="10"
-						stroke="currentColor"
-						stroke-width="4"
-					/>
-					<path
-						class="opacity-75"
-						fill="currentColor"
-						d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-					/>
-				</svg>
-			</div>
-		{:then}
+		{#await promise then}
 			Redirecting to Stripe Checkout...
 		{:catch error}
-			<div class="max-w-2xl m-auto clear-both prose prose-xl prose-slate pt-8 px-4">
+			<div class="max-w-2xl text-lg p-4 my-4 m-auto bg-red-50 rounded-md border border-red-300">
 				<p class="text-red-600">{error}</p>
 			</div>
 		{/await}
