@@ -12,20 +12,7 @@
 	let success_url, cancel_url;
 	let payment_method_types = [];
 	let mode = 'payment';
-	let newProduct = {
-		priceData: true,
-		price_id: '',
-		price_data: {
-			currency: 'usd',
-			unit_amount: '1000',
-			product_data: {
-				name: 'Another Product',
-				description: 'This is a second product!',
-				images: ['']
-			}
-		},
-		quantity: 1
-	};
+
 	let line_items = [
 		{
 			priceData: true,
@@ -39,12 +26,25 @@
 					images: ['']
 				}
 			},
-			quantity: 1
+			quantity: '1'
 		}
 	];
 
 	function addNewLineItem() {
-		line_items.push(newProduct);
+		line_items.push({
+			priceData: true,
+			price_id: '',
+			price_data: {
+				currency: 'usd',
+				unit_amount: '1000',
+				product_data: {
+					name: 'Another Product',
+					description: 'This is another product!',
+					images: ['']
+				}
+			},
+			quantity: '1'
+		});
 		line_items = line_items;
 	}
 	function handle_submit() {
@@ -177,7 +177,7 @@
 			</div>
 		</div>
 	</div>
-	{#each line_items as { priceData, price_id, price_data }, i}
+	{#each line_items as { priceData, price_id, price_data, quantity }, i}
 		<div
 			class="border border-slate-300 rounded-md w-full max-w-2xl m-auto col-span-6 p-4 sm:p-12 my-8 relative"
 		>
@@ -270,7 +270,7 @@
 								name="quantity"
 								type="number"
 								min="1"
-								bind:value={price_data.quantity}
+								bind:value={quantity}
 								class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-20 sm:text-sm border-slate-300 rounded-md"
 							/>
 						</div>
