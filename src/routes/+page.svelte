@@ -1,13 +1,13 @@
 <script>
 	import { loadStripe } from '@stripe/stripe-js';
 	import { onMount } from 'svelte';
-	import { browser } from '$app/env';
+	import { browser } from '$app/environment';
 
 	let stripe;
 	let promise;
 	let error = false;
 	let showAllPaymentMethods = false;
-	let stripe_secret = 'sk_test_4eC39HqLyjWDarjtT1zdp7dc';
+	let stripe_secret = '';
 	let stripe_perishable = 'pk_test_TYooMQauvdEDq54NiTphI7jx';
 	let success_url, cancel_url;
 	let payment_method_types = [];
@@ -31,24 +31,47 @@
 	];
 
 	function addNewLineItem() {
-		line_items.push({
-			priceData: true,
-			price_id: '',
-			price_data: {
-				currency: 'usd',
-				unit_amount: '1000',
-				product_data: {
-					name: 'Another Product',
-					description: 'This is another product!',
-					images: ['']
-				}
-			},
-			quantity: '1'
-		});
+		line_items = [
+			...line_items,
+			{
+				priceData: true,
+				price_id: '',
+				price_data: {
+					currency: 'usd',
+					unit_amount: '1000',
+					product_data: {
+						name: 'Another Product',
+						description: 'This is another product!',
+						images: ['']
+					}
+				},
+				quantity: '1'
+			}
+		];
+	}
+
+	function removeLineItem(index) {
+		line_items = line_items.filter((_, i) => i !== index);
+	}
+
+	function togglePriceData(index) {
+		line_items[index].priceData = !line_items[index].priceData;
 		line_items = line_items;
 	}
 	function handle_submit() {
 		promise = stripeCheckout();
+	}
+
+	function getPriceData(price_data) {
+		const product_data = { ...price_data.product_data };
+		if (!product_data.images?.[0]) {
+			delete product_data.images;
+		}
+
+		return {
+			...price_data,
+			product_data
+		};
 	}
 
 	async function stripeCheckout() {
@@ -56,14 +79,11 @@
 		const headers = new Headers();
 		headers.append('Content-Type', 'application/json');
 
-		let checkout_session = line_items.reduce(
+		const checkout_session = line_items.reduce(
 			(total, current) => {
 				if (current.priceData) {
-					if (current.price_data.product_data.images[0] == '') {
-						delete current.price_data.product_data.images;
-					}
 					total.line_items.push({
-						price_data: current.price_data,
+						price_data: getPriceData(current.price_data),
 						quantity: current.quantity
 					});
 				} else {
@@ -82,8 +102,9 @@
 			}
 		);
 
-		if (payment_method_types.length > 0)
-			checkout_session['payment_method_types'] = payment_method_types;
+		if (payment_method_types.length > 0) {
+			checkout_session.payment_method_types = payment_method_types;
+		}
 
 		const res = await fetch('/stripe/checkout', {
 			method: 'POST',
@@ -92,7 +113,6 @@
 		});
 
 		const json = await res.json();
-		//return console.log(json.error);
 		if (res.ok) {
 			const { sessionId } = json;
 			return stripe.redirectToCheckout({
@@ -133,22 +153,30 @@
 		options for <a
 			href="https://stripe.com/payments/payment-links"
 			target="_blank"
+			rel="noreferrer"
 			class="text-blue-600">Payment Links</a
 		>
-		and <a href="https://stripe.com/invoicing" target="_blank" class="text-blue-600">Invoicing</a>.
+		and
+		<a href="https://stripe.com/invoicing" target="_blank" rel="noreferrer" class="text-blue-600"
+			>Invoicing</a
+		>.
 	</p>
 
 	<div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 md:grid-cols-2 max-w-xl md:max-w-3xl m-auto">
 		<div>
 			<label for="stripe-sk" class="block text-sm font-medium text-slate-700">
-				Stripe Secret Key <span class="text-sm text-slate-600 font-normal"
-					>(<a href="https://dashboard.stripe.com/register" target="_blank" class="text-blue-600"
-						>Sign Up</a
+				Stripe Test Secret Key <span class="text-sm text-slate-600 font-normal"
+					>(<a
+						href="https://dashboard.stripe.com/register"
+						target="_blank"
+						rel="noreferrer"
+						class="text-blue-600">Sign Up</a
 					>
-					and get our own
+					and get your own
 					<a
 						href="https://dashboard.stripe.com/test/developers"
 						target="_blank"
+						rel="noreferrer"
 						class="text-blue-600">API Keys</a
 					>)</span
 				>
@@ -157,6 +185,7 @@
 				<input
 					type="text"
 					name="stripe-sk"
+					placeholder="sk_test_..."
 					bind:value={stripe_secret}
 					class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-slate-300 rounded-md"
 				/>
@@ -165,7 +194,7 @@
 
 		<div>
 			<label for="stripe-pk" class="block text-sm font-medium text-slate-700">
-				Stripe Perishable Key
+				Stripe Publishable Key
 			</label>
 			<div class="mt-1">
 				<input
@@ -177,12 +206,12 @@
 			</div>
 		</div>
 	</div>
-	{#each line_items as { priceData, price_id, price_data, quantity }, i}
+	{#each line_items as { priceData, price_id, price_data, quantity }, i (i)}
 		<div
 			class="border border-slate-300 rounded-md w-full max-w-2xl m-auto col-span-6 p-4 sm:p-12 my-8 relative"
 		>
 			<button
-				on:click={() => (line_items = line_items.splice(i, 1))}
+				on:click={() => removeLineItem(i)}
 				class="absolute top-2 right-2 text-slate-400 hover:text-slate-600 p-2 hover:bg-slate-100 rounded-md"
 			>
 				<span class="sr-only">Remove Line Item</span>
@@ -203,23 +232,23 @@
 			<div>
 				<div class="flex items-center">
 					<button
-						on:click={() => (priceData = !priceData)}
+						on:click={() => togglePriceData(i)}
 						type="button"
 						class="{priceData
 							? 'bg-blue-600'
 							: 'bg-slate-200'} relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 						role="switch"
-						aria-checked="false"
-						aria-labelledby="price-data-label"
+						aria-checked={priceData}
+						aria-labelledby={`price-data-label-${i}`}
 					>
 						<span
 							aria-hidden="true"
 							class="{priceData
 								? 'translate-x-5'
 								: 'translate-x-0'} pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"
-						/>
+						></span>
 					</button>
-					<span class="ml-3" id="price-data-label leading-none" style="line-height:1">
+					<span class="ml-3" id={`price-data-label-${i}`} style="line-height:1">
 						<span class="text-sm font-medium {priceData ? 'text-slate-900' : 'text-slate-500'}"
 							>Price Data</span
 						>/<span class="text-sm font-medium {priceData ? 'text-slate-500' : 'text-slate-900'}"
@@ -299,7 +328,7 @@
 							name="description"
 							bind:value={price_data.product_data.description}
 							class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-slate-300 rounded-md"
-						/>
+						></textarea>
 					</div>
 				</div>
 
@@ -376,7 +405,7 @@
 						</div>
 					</div>
 					{#if showAllPaymentMethods}
-						{#each ['acss_debit', 'afterpay_clearpay', 'alipay', 'au_becs_debit', 'bacs_debit', 'bancontact', 'boleto', 'card_present', 'eps', 'fpx', 'giropay', 'grabpay', 'ideal', 'interac_present', 'klarna', 'konbini', 'oxxo', 'p24', 'sepa_debit', 'sofort', 'wechat_pay'] as payment_method}
+						{#each ['acss_debit', 'afterpay_clearpay', 'alipay', 'au_becs_debit', 'bacs_debit', 'bancontact', 'boleto', 'card_present', 'eps', 'fpx', 'giropay', 'grabpay', 'ideal', 'interac_present', 'klarna', 'konbini', 'oxxo', 'p24', 'sepa_debit', 'sofort', 'wechat_pay'] as payment_method (payment_method)}
 							<div class="relative flex items-start border-t py-3">
 								<div class="flex items-center h-5">
 									<input
@@ -481,14 +510,13 @@
 	<p>
 		const <span class="text-white">session</span> = await stripe.checkout.sessions.create({'{'}<br
 		/>{#if payment_method_types.length > 0}
-			&emsp;payment_method_types: <span
-				class="text-[#7dd3fc]"
-			/>[{#each payment_method_types as payment_method}<span class="text-[#7dd3fc]"
-					>'{payment_method}'</span
+			&emsp;payment_method_types: <span class="text-[#7dd3fc]"
+			></span>[{#each payment_method_types as payment_method (payment_method)}<span
+					class="text-[#7dd3fc]">'{payment_method}'</span
 				>,
 			{/each}] <br />{/if}
 		&emsp;line_items: [&lbrace;<br />
-		{#each line_items as { price_data, quantity, price_id, priceData }, i}
+		{#each line_items as { price_data, quantity, price_id, priceData }, i (i)}
 			{#if priceData}
 				&emsp;&emsp;price_data: &lbrace;<br />
 				&emsp;&emsp;&emsp;currency:
@@ -508,7 +536,7 @@
 				&emsp;&emsp;&emsp;&rbrace;,<br />
 				&emsp;&emsp;&rbrace;,
 			{:else}
-				&emsp;&emsp;price: <span class="text-[#7dd3fc]">'{price_id}'</span>
+				&emsp;&emsp;price: <span class="text-[#7dd3fc]">'{price_id}'</span>,
 			{/if}
 			<br />
 			&emsp;quantity:
@@ -518,30 +546,46 @@
 		mode: <span class="text-[#7dd3fc]">'{mode}'</span>,<br />
 		success_url: <span class="text-[#7dd3fc]">'{success_url}'</span>,<br />
 		cancel_url: <span class="text-[#7dd3fc]">'{cancel_url}'</span>,<br />
-		{'});'}
+		&#125;);
 	</p>
 </div>
 
 <div class="max-w-3xl m-auto prose prose-slate clear-both pt-8 pb-32 prose-a:text-blue-600 p-4">
 	<h3>More Reading</h3>
 	<ul>
-		<a href="https://stripe.com/payments/checkout" target="_blank">
-			<li>Stripe Checkout</li>
-		</a>
-		<a href="https://stripe.com/docs/keys" target="_blank">
-			<li>Manage Stripe API Keys</li>
-		</a>
-		<a href="https://stripe.com/docs/payments/checkout" target="_blank">
-			<li>Stripe Checkout Docs</li>
-		</a>
-		<a href="https://stripe.com/docs/api/checkout/sessions/object" target="_blank">
-			<li>Checkout Sessions Object</li>
-		</a>
-		<a href="https://stripe.com/docs/testing" target="_blank">
-			<li>Stripe Test Cards</li>
-		</a>
-		<a href="https://stripe.com/docs/payments/checkout/migrating-prices" target="_blank">
-			<li>Stripe Checkout Prices API</li>
-		</a>
+		<li>
+			<a href="https://stripe.com/payments/checkout" target="_blank" rel="noreferrer"
+				>Stripe Checkout</a
+			>
+		</li>
+		<li>
+			<a href="https://stripe.com/docs/keys" target="_blank" rel="noreferrer"
+				>Manage Stripe API Keys</a
+			>
+		</li>
+		<li>
+			<a href="https://stripe.com/docs/payments/checkout" target="_blank" rel="noreferrer"
+				>Stripe Checkout Docs</a
+			>
+		</li>
+		<li>
+			<a
+				href="https://stripe.com/docs/api/checkout/sessions/object"
+				target="_blank"
+				rel="noreferrer">Checkout Sessions Object</a
+			>
+		</li>
+		<li>
+			<a href="https://stripe.com/docs/testing" target="_blank" rel="noreferrer"
+				>Stripe Test Cards</a
+			>
+		</li>
+		<li>
+			<a
+				href="https://stripe.com/docs/payments/checkout/migrating-prices"
+				target="_blank"
+				rel="noreferrer">Stripe Checkout Prices API</a
+			>
+		</li>
 	</ul>
 </div>
