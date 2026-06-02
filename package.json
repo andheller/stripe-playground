@@ -1,9 +1,6 @@
 {
 	"name": "stripe-playground",
 	"version": "0.0.1",
-	"engines": {
-		"node": ">=24.0.0 <26.0.0"
-	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
